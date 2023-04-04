@@ -34,23 +34,45 @@ def display(cap):
         if(flag):
             frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
 
-
             #klatka z oknem
             frame_window = frame[window_area[0][1]: window_area[1][1]+1, window_area[0][0]: window_area[1][0]+1]
+
             frame_window_edges = cv2.cvtColor(frame_window, cv2.COLOR_BGR2GRAY)
             frame_window_edges = cv2.Canny(frame_window_edges,150,200)
+
+            white_pixel_window = cv2.countNonZero(frame_window_edges)
+            black_pixel_window = (frame_window_edges.shape[0] * frame_window_edges.shape[1]) - white_pixel_window
+            percentage_window = str(white_pixel_window/black_pixel_window)
+
+            frame = cv2.putText(frame, percentage_window[0:7], window_area[0], cv2.FONT_HERSHEY_SIMPLEX,0.35,(255,0,0), 1, cv2.LINE_AA)
             cv2.imshow("Window Frame", frame_window_edges)
 
             #klatka z drzwiami
             frame_door = frame[door_area[0][1]: door_area[1][1]+1, door_area[0][0]: door_area[1][0]+1]
             frame_door_edges = cv2.cvtColor(frame_door, cv2.COLOR_BGR2GRAY)
             frame_door_edges = cv2.Canny(frame_door_edges,150,200)
+
+            white_pixel_door = cv2.countNonZero(frame_door_edges)
+            black_pixel_door = (frame_door_edges.shape[0] * frame_door_edges.shape[1]) - white_pixel_door
+            percentage_door = str(white_pixel_door/black_pixel_door)
+
+            frame = cv2.putText(frame, percentage_door[0:7], door_area[0], cv2.FONT_HERSHEY_SIMPLEX,0.35,(0,255,0), 1, cv2.LINE_AA)
+
+
             cv2.imshow("Door Frame", frame_door_edges)
 
             #klatka z schodem
             frame_stair = frame[stairs_area[0][1]: stairs_area[1][1]+1, stairs_area[0][0]: stairs_area[1][0]+1]
             frame_stair_edges = cv2.cvtColor(frame_stair, cv2.COLOR_BGR2GRAY)
             frame_stair_edges = cv2.Canny(frame_stair_edges,150,200)
+
+
+            white_pixel_stair = cv2.countNonZero(frame_stair_edges)
+            black_pixel_stair = (frame_stair_edges.shape[0] * frame_stair_edges.shape[1]) - white_pixel_stair
+            percentage_stair = str(white_pixel_stair/black_pixel_stair)
+
+            frame = cv2.putText(frame, percentage_stair[0:7], stairs_area[0], cv2.FONT_HERSHEY_SIMPLEX,0.35,(0,0,255), 1, cv2.LINE_AA)
+
 
             cv2.imshow("Step Frame", frame_stair_edges)
 
