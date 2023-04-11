@@ -4,7 +4,7 @@ import random
 import string
 
 
-
+cascade_door = cv2.CascadeClassifier("data/door/cascade.xml")
 
 window_areas = {"out_front" : [(542,196), (565,227)], "out_back" : [(297,231), (412,369)], "inside" : [(0,0), (0,0)]}
 door_areas = {"out_front" : [(477,295), (572,396)], "out_back" : [(459,245), (594,320)], "inside" : [(0,0), (0,0)]}
@@ -31,8 +31,8 @@ def selectData():
         # door_area = door_areas[area_identifer]
         # stairs_area = stairs_areas[area_identifer]
         # print(window_area)
-        #display(cap)
-        collectData(cap)
+        display(cap)
+        #collectData(cap)
 
 def display(cap):
 
@@ -40,6 +40,11 @@ def display(cap):
         flag, frame = cap.read()
         if(flag):
             frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
+
+            door_rectangles = cascade_door.detectMultiScale(frame)
+
+            for i in door_rectangles:
+                frame = cv2.rectangle(frame,(i[0], i[1]), (i[2], i[3]), (255,0,0), 1)
 
 
             cv2.imshow("Whole Frame", frame)
