@@ -25,14 +25,15 @@ def selectData():
         cap.release()
         selectData()
     else:
-        # area_identifer = filename[:-6]
-        # global window_area, door_area, stairs_area
-        # window_area= window_areas[area_identifer]
-        # door_area = door_areas[area_identifer]
-        # stairs_area = stairs_areas[area_identifer]
+        area_identifer = filename[:-6]
+        global window_area, door_area, stairs_area
+        window_area= window_areas[area_identifer]
+        #door_area = door_areas[area_identifer]
+        door_area = [(468,77),(593,500)]
+        stairs_area = stairs_areas[area_identifer]
         # print(window_area)
-        display(cap)
-        #collectData(cap)
+        #display(cap)
+        collectData(cap)
 
 def display(cap):
 
@@ -40,14 +41,17 @@ def display(cap):
         flag, frame = cap.read()
         if(flag):
             frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
+            frame_door = frame[door_area[0][1]-10: door_area[1][1]+10, door_area[0][0]-10: door_area[1][0]+10]
 
-            door_rectangles = cascade_door.detectMultiScale(frame)
+            door_rectangles = cascade_door.detectMultiScale(frame_door)
+
 
             for i in door_rectangles:
-                frame = cv2.rectangle(frame,(i[0], i[1]), (i[2], i[3]), (255,0,0), 1)
+                frame_door = cv2.rectangle(frame_door,(i[0], i[1]), (i[2], i[3]), (255,0,0), 1)
 
 
             cv2.imshow("Whole Frame", frame)
+            cv2.imshow("Door Frame", frame_door)
         key = cv2.waitKey(1)
         if key== ord('q'):
             break
@@ -81,3 +85,26 @@ def collectData(cap):
 
 if __name__ == "__main__":
     selectData()
+
+
+
+'''
+zaznaczanie danych:
+opencv_annotation --anotations <nazwa>.txt --images <path to images>
+
+generowanie wektora:
+opencv_createsamples -info pos.txt -w <szerokosc_ob> -h <wysokosc_ob> -num <ile_masz_poz_probek(moze byc wiecej niz masz)> -vec <nazwa_pliku(pos)>.vec
+
+
+trenowanie modelu:
+opencv_traincascade -data cascade_door/ -vec pos.vec -bg bg.txt -w <szerokosc_ob> -h <wysokosc_ob> -numPos <ilosc_poz> -numNeg <ilosc_neg> -minHitRate <minimalne_trafianie> -maxFalseAlarmRate <maksymalne_false_alarm> -numStages <ilosc_rundek_nauki> -precalcValBufSize <ram> -precalcIdxBufSize <ram>
+
+
+
+
+
+#za duzo falszywych alarmow: +neg probki +stages
+
+#za duzo misow: -stages
+
+'''
