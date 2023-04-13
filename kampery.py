@@ -17,7 +17,7 @@ stairs_area = [(), ()]
 
 def selectData():
     #filename= input("Podaj nazwe pliku zrodlowego(z rozszerzeniem): ")
-    filename = "out_back_3.MOV"
+    filename = "out_front_3.MOV"
     cap = cv2.VideoCapture("Kampery/" +filename)
 
     if(not cap.isOpened()):
@@ -32,8 +32,8 @@ def selectData():
         door_area = [(468,77),(593,500)]
         stairs_area = stairs_areas[area_identifer]
         # print(window_area)
-        #display(cap)
-        collectData(cap)
+        display(cap)
+        #collectData(cap)
 
 def display(cap):
 
@@ -106,5 +106,10 @@ opencv_traincascade -data cascade_door/ -vec pos.vec -bg bg.txt -w <szerokosc_ob
 #za duzo falszywych alarmow: +neg probki +stages
 
 #za duzo misow: -stages
+
+#narazie najlepsze(tylko front):
+opencv_traincascade -data cascade_door/ -vec pos_front.vec -bg bg.txt -w 24 -h 24 -numPos 300 -numNeg 1000 -minHitRate 0.999 -maxFalseAlarmRate 0.1 -numStages 6 -precalcValBufSize 6000 -precalcIdxBufSize 6000
+
+
 
 '''
