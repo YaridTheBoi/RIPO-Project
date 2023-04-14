@@ -1,0 +1,12 @@
+item{
+	name:'door'
+	id:1
+}
+item{
+	name:'step'
+	id:2
+}
+item{
+	name:'window'
+	id:3
+}
