@@ -1,9 +1,39 @@
+WORKSPACE_PATH = 'Tensorflow/workspace'
+SCRIPTS_PATH = 'Tensorflow/scripts'
+APIMODEL_PATH = 'Tensorflow/models'
+ANNOTATIONS_PATH = WORKSPACE_PATH + '/annotations'
+IMAGE_PATH = WORKSPACE_PATH + '/images'                         
+MODEL_PATH = WORKSPACE_PATH + '/models'
+PRETRAINED_MODEL_PATH = WORKSPACE_PATH + '/pre-trained-models'
+CONFIG_PATH = MODEL_PATH + '/my_ssd_mobnet/pipeline.config' 
+CHECKPOINT_PATH = MODEL_PATH + '/my_ssd_mobnet/'
+CUSTOM_MODEL_NAME = 'my_ssd_mobnet'
+
+
+
 
 import cv2
 import numpy as np
 import random
 import string
 
+import os
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as vis_utils
+from object_detection.builders import model_builder
+import tensorflow as tf
+from object_detection.utils import config_util
+from object_detection.protos import pipeline_pb2
+from google.protobuf import text_format
+
+
+
+
+configs = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
+detection_model = model_builder.build(model_config=configs["model"], is_training=False)
+
+ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
+ckpt.restore(os.path.join(CHECKPOINT_PATH , 'ckpt-6')).expect_partial()
 
 window_areas = {"out_front" : [(542,196), (565,227)], "out_back" : [(297,231), (412,369)], "inside" : [(0,0), (0,0)]}
 door_areas = {"out_front" : [(477,295), (572,396)], "out_back" : [(459,245), (594,320)], "inside" : [(0,0), (0,0)]}
@@ -12,6 +42,13 @@ stairs_areas = {"out_front" : [(543,456), (563,480)], "out_back" : [(639,266), (
 window_area = [(), ()]
 door_area = [(), ()]
 stairs_area = [(), ()]
+
+@tf.function
+def detect_fn(image):
+    image,shapes = detection_model.preprocess(image)
+    prediction_dict = detection_model.predict(image, shapes)
+    detections = detection_model.prepocess(prediction_dict, shapes)
+    return detections
 
 
 def selectData():
