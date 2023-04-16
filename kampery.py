@@ -35,6 +35,16 @@ detection_model = model_builder.build(model_config=configs["model"], is_training
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
 ckpt.restore(os.path.join(CHECKPOINT_PATH , 'ckpt-6')).expect_partial()
 
+
+
+@tf.function
+def detect_fn(image):
+    image,shapes = detection_model.preprocess(image)
+    prediction_dict = detection_model.predict(image, shapes)
+    detections = detection_model.postprocess(prediction_dict, shapes)
+    return detections
+
+
 window_areas = {"out_front" : [(542,196), (565,227)], "out_back" : [(297,231), (412,369)], "inside" : [(0,0), (0,0)]}
 door_areas = {"out_front" : [(477,295), (572,396)], "out_back" : [(459,245), (594,320)], "inside" : [(0,0), (0,0)]}
 stairs_areas = {"out_front" : [(543,456), (563,480)], "out_back" : [(639,266), (659,298)], "inside" : [(0,0), (0,0)]}
@@ -43,17 +53,10 @@ window_area = [(), ()]
 door_area = [(), ()]
 stairs_area = [(), ()]
 
-@tf.function
-def detect_fn(image):
-    image,shapes = detection_model.preprocess(image)
-    prediction_dict = detection_model.predict(image, shapes)
-    detections = detection_model.prepocess(prediction_dict, shapes)
-    return detections
-
 
 def selectData():
     #filename= input("Podaj nazwe pliku zrodlowego(z rozszerzeniem): ")
-    filename = "out_front_2.MOV"
+    filename = "out_front_1.MOV"
     cap = cv2.VideoCapture("Kampery/" +filename)
 
     if(not cap.isOpened()):
@@ -68,19 +71,49 @@ def selectData():
         door_area = [(468,77),(593,500)]
         stairs_area = stairs_areas[area_identifer]
         # print(window_area)
-        #display(cap)
-        collectData(cap)
+        display(cap)
+        #collectData(cap)
 
 
 def display(cap):
-
+    category_index = label_map_util.create_category_index_from_labelmap(ANNOTATIONS_PATH + '/label_map.pbtxt')
     while(True):
         flag, frame = cap.read()
+        
+        
+
         if(flag):
+
             frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
+            image_np = np.array(frame)
+            
+            input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype =tf.float32)
+            detections = detect_fn(input_tensor)
+
+            num_detections = int(detections.pop('num_detections'))
+
+            detections = {key:value[0, :num_detections].numpy() for key, value in detections.items()}
+            detections['num_detections'] = num_detections
+            detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+
+            label_id_offset =1
+            image_np_with_detections = image_np.copy()
+
+            vis_utils.visualize_boxes_and_labels_on_image_array(
+                image_np_with_detections,
+                detections['detection_boxes'],
+                detections['detection_classes']+label_id_offset,
+                detections['detection_scores'],
+                category_index,
+                use_normalized_coordinates=True,
+                max_boxes_to_draw= 3,
+                min_score_thresh=0.3,
+                agnostic_mode=False
+            )
 
 
-            cv2.imshow("Whole Frame", frame)
+            cv2.imshow("Detections", image_np_with_detections)
+            #cv2.imshow("Whole Frame", frame)
         key = cv2.waitKey(1)
         if key== ord('q'):
             break

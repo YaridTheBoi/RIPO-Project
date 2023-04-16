@@ -66,6 +66,9 @@ def copyModelConfig():
                                 MODEL_PATH +'/' +CUSTOM_MODEL_NAME))
     print("\nSuccesfully copied config\n")
     '''
+
+    NIE ROBIC TEGO
+
     Po tym jak sie skopiuje to w decelowym miejscu:
 
 
