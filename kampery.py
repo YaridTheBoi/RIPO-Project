@@ -9,9 +9,6 @@ CONFIG_PATH = MODEL_PATH + '/my_ssd_mobnet/pipeline.config'
 CHECKPOINT_PATH = MODEL_PATH + '/my_ssd_mobnet/'
 CUSTOM_MODEL_NAME = 'my_ssd_mobnet'
 
-
-
-
 import cv2
 import numpy as np
 import random
@@ -21,17 +18,19 @@ import os
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_utils
 from object_detection.builders import model_builder
+
+
 import tensorflow as tf
 from object_detection.utils import config_util
-from object_detection.protos import pipeline_pb2
-from google.protobuf import text_format
 
 
 
 
+#zaladowanie modelu i zbuildowanie go wg configu
 configs = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
 detection_model = model_builder.build(model_config=configs["model"], is_training=False)
 
+#zaladowanie ostatniego checkpointa (najnowszy stan wiedzy modelu)
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
 ckpt.restore(os.path.join(CHECKPOINT_PATH , 'ckpt-6')).expect_partial()
 
@@ -79,41 +78,36 @@ def display(cap):
     category_index = label_map_util.create_category_index_from_labelmap(ANNOTATIONS_PATH + '/label_map.pbtxt')
     while(True):
         flag, frame = cap.read()
+
+        frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
         
+        input_tensor = tf.convert_to_tensor(np.expand_dims(frame, 0), dtype =tf.float32)
+        detections = detect_fn(input_tensor)
+
+        num_detections = int(detections.pop('num_detections'))
+
+        detections = {key:value[0, :num_detections].numpy() for key, value in detections.items()}
+        detections['num_detections'] = num_detections
+        detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+
+        label_id_offset =1
         
 
-        if(flag):
-
-            frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
-            image_np = np.array(frame)
-            
-            input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype =tf.float32)
-            detections = detect_fn(input_tensor)
-
-            num_detections = int(detections.pop('num_detections'))
-
-            detections = {key:value[0, :num_detections].numpy() for key, value in detections.items()}
-            detections['num_detections'] = num_detections
-            detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-
-            label_id_offset =1
-            image_np_with_detections = image_np.copy()
-
-            vis_utils.visualize_boxes_and_labels_on_image_array(
-                image_np_with_detections,
-                detections['detection_boxes'],
-                detections['detection_classes']+label_id_offset,
-                detections['detection_scores'],
-                category_index,
-                use_normalized_coordinates=True,
-                max_boxes_to_draw= 3,
-                min_score_thresh=0.3,
-                agnostic_mode=False
-            )
+        vis_utils.visualize_boxes_and_labels_on_image_array(
+            frame,
+            detections['detection_boxes'],
+            detections['detection_classes']+label_id_offset,
+            detections['detection_scores'],
+            category_index,
+            use_normalized_coordinates=True,
+            max_boxes_to_draw= 3,
+            min_score_thresh=0.3,
+            agnostic_mode=False
+        )
 
 
-            cv2.imshow("Detections", image_np_with_detections)
-            #cv2.imshow("Whole Frame", frame)
+        cv2.imshow("Detections", frame)
+        #cv2.imshow("Whole Frame", frame)
         key = cv2.waitKey(1)
         if key== ord('q'):
             break
