@@ -126,6 +126,8 @@ venv.bak/
 #nagrania
 /Kampery
 
+#dane do nauki
+/data
 # mypy
 .mypy_cache/
 .dmypy.json

@@ -51,3 +51,6 @@ pip install --upgrade tensorflow-object-detection-api
 to moze ponownie wywolac powyzszy blad
 
 ======================================================================================
+
+https://www.youtube.com/watch?v=rRwflsS67ow&t=544s
+https://stackoverflow.com/questions/72611914/error-could-not-build-wheels-for-pycocotools-which-is-required-to-install-pypr

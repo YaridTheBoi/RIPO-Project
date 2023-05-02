@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 import random
 import string
-
+import time
 import os
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_utils
@@ -76,34 +76,59 @@ def selectData():
 
 def display(cap):
     category_index = label_map_util.create_category_index_from_labelmap(ANNOTATIONS_PATH + '/label_map.pbtxt')
+    start = time.time()
+    
+    max_detection_delay = 0.2
+    min_detection_delay = 0.02
+    detection_delay = (max_detection_delay + min_detection_delay)/2
+    delay_delta = 0.02
+    prev_best_score = 0.25
     while(True):
         flag, frame = cap.read()
 
         frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
         
-        input_tensor = tf.convert_to_tensor(np.expand_dims(frame, 0), dtype =tf.float32)
-        detections = detect_fn(input_tensor)
 
-        num_detections = int(detections.pop('num_detections'))
 
-        detections = {key:value[0, :num_detections].numpy() for key, value in detections.items()}
-        detections['num_detections'] = num_detections
-        detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+        current_time = time.time()
 
-        label_id_offset =1
-        
+        if current_time - start >= detection_delay:
 
-        vis_utils.visualize_boxes_and_labels_on_image_array(
-            frame,
-            detections['detection_boxes'],
-            detections['detection_classes']+label_id_offset,
-            detections['detection_scores'],
-            category_index,
-            use_normalized_coordinates=True,
-            max_boxes_to_draw= 3,
-            min_score_thresh=0.3,
-            agnostic_mode=False
-        )
+            
+            input_tensor = tf.convert_to_tensor(np.expand_dims(frame, 0), dtype =tf.float32)
+            detections = detect_fn(input_tensor)
+
+            num_detections = int(detections.pop('num_detections'))
+
+            detections = {key:value[0, :num_detections].numpy() for key, value in detections.items()}
+            detections['num_detections'] = num_detections
+            detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+            label_id_offset =1
+
+            prev_best_score= max(detections['detection_scores'])
+
+            vis_utils.visualize_boxes_and_labels_on_image_array(
+                frame,
+                detections['detection_boxes'],
+                detections['detection_classes']+label_id_offset,
+                detections['detection_scores'],
+                category_index,
+                use_normalized_coordinates=True,
+                max_boxes_to_draw= 3,
+                min_score_thresh=0.3,
+                agnostic_mode=False
+            )
+
+            if prev_best_score > 0.27 and detection_delay - delay_delta > min_detection_delay:
+                detection_delay -= delay_delta
+            
+            if prev_best_score < 0.27 and detection_delay + delay_delta <=max_detection_delay:
+                detection_delay += delay_delta
+            
+            start = current_time
+
+            print(detection_delay)
+
 
 
         cv2.imshow("Detections", frame)
@@ -142,3 +167,5 @@ def collectData(cap):
 
 if __name__ == "__main__":
     selectData()
+
+    #2.12

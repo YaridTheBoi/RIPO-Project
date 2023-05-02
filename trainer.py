@@ -1,3 +1,5 @@
+#NIE MASZ PATH Z MODELEM W WORK SPACE. NAPISAC SKRYPT KTORY WSZYSTKO TWORZY CO POTRZEBNE
+
 WORKSPACE_PATH = 'Tensorflow/workspace'
 SCRIPTS_PATH = 'Tensorflow/scripts'
 APIMODEL_PATH = 'Tensorflow/models'
@@ -12,6 +14,7 @@ CUSTOM_MODEL_NAME = 'my_ssd_mobnet'
 import os
 
 import tensorflow as tf
+tf.compat.v1.enable_v2_behavior()
 from object_detection.utils import config_util
 from object_detection.protos import pipeline_pb2
 from google.protobuf import text_format
@@ -57,9 +60,9 @@ Przekopiuj pipline.config z /RIPO-Project/Tensorflow/workspace/pre-trained-model
 '''
 def copyModelConfig():
     
-    if(os.path.exists(MODEL_PATH +'/' +CUSTOM_MODEL_NAME +'/pipeline.config')):
-        print("\nConfig already exists\n")
-        return()
+    # if(os.path.exists(MODEL_PATH +'/' +CUSTOM_MODEL_NAME +'/pipeline.config')):
+    #     print("\nConfig already exists\n")
+    #     return()
 
     os.system('mkdir Tensorflow/workspace/models/{}'.format(CUSTOM_MODEL_NAME))
     os.system('cp {} {}'.format(PRETRAINED_MODEL_PATH+'/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8/pipeline.config',
@@ -114,8 +117,11 @@ def generateTrainCommand():
     print("""python {}/research/object_detection/model_main_tf2.py --model_dir={}/{} --pipeline_config_path={}/{}/pipeline.config --num_train_steps=5000""".format(APIMODEL_PATH, MODEL_PATH, CUSTOM_MODEL_NAME, MODEL_PATH, CUSTOM_MODEL_NAME))
 
 if __name__ == "__main__":
-    createLabelMap()
-    createTFRecords()
-    copyModelConfig()
-    updateModelConfig()
+    #createLabelMap()
+    #createTFRecords()
+    #copyModelConfig()
+    #updateModelConfig()
     generateTrainCommand()
+
+
+#fine_tune_checkpoint_version: V2
