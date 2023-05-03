@@ -55,23 +55,30 @@ stairs_area = [(), ()]
 
 def selectData():
     #filename= input("Podaj nazwe pliku zrodlowego(z rozszerzeniem): ")
-    filename = "out_front_1.MOV"
+    filename = "out_back_1.MOV"
     cap = cv2.VideoCapture("Kampery/" +filename)
+
+    global is_back
+
+    is_back = "back" in filename
+
 
     if(not cap.isOpened()):
         print("Nie ma takiego pliku\n")
         cap.release()
         selectData()
     else:
-        area_identifer = filename[:-6]
-        global window_area, door_area, stairs_area
-        window_area= window_areas[area_identifer]
-        #door_area = door_areas[area_identifer]
-        door_area = [(468,77),(593,500)]
-        stairs_area = stairs_areas[area_identifer]
-        # print(window_area)
-        display(cap)
-        #collectData(cap)
+
+
+        # area_identifer = filename[:-6]
+        # global window_area, door_area, stairs_area
+        # window_area= window_areas[area_identifer]
+        # #door_area = door_areas[area_identifer]
+        # door_area = [(468,77),(593,500)]
+        # stairs_area = stairs_areas[area_identifer]
+
+        #display(cap)
+        collectData(cap)
 
 
 def display(cap):
@@ -86,7 +93,7 @@ def display(cap):
     while(True):
         flag, frame = cap.read()
 
-        frame = cv2.resize(frame, (int(frame.shape[1] * 0.5) , int(frame.shape[0] * 0.5)), interpolation= cv2.INTER_AREA)
+        frame = cv2.resize(frame, (frame.shape[1] //2 , frame.shape[0] //2), interpolation= cv2.INTER_AREA)
         
 
 
@@ -134,7 +141,7 @@ def display(cap):
         cv2.imshow("Detections", frame)
         #cv2.imshow("Whole Frame", frame)
         key = cv2.waitKey(1)
-        if key== ord('q'):
+        if key == ord('q'):
             break
 
 
@@ -145,6 +152,7 @@ def display(cap):
 
 def collectData(cap):
     data_path = "data"
+
     while(True):
         flag, frame = cap.read()
         if(flag):
@@ -153,14 +161,24 @@ def collectData(cap):
 
             cv2.imshow("Whole Frame", frame)
         key = cv2.waitKey(1)
-        if key== ord('q'):
+
+        if key == ord('q'):
             break
         elif key == ord('d'):
-            cv2.imwrite(data_path+ f"/door/door_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
+            if not is_back:
+                cv2.imwrite(data_path+ f"/door/door_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
+            else:
+                cv2.imwrite(data_path+ f"/door_back/door_back_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
         elif key == ord('s'):
-            cv2.imwrite(data_path+ f"/step/step_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
+            if not is_back:
+                cv2.imwrite(data_path+ f"/step/step_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
+            else:
+                cv2.imwrite(data_path+ f"/step_back/step_back_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
         elif key == ord('w'):
-            cv2.imwrite(data_path+ f"/window/window_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
+            if not is_back:
+                cv2.imwrite(data_path+ f"/window/window_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
+            else:
+                cv2.imwrite(data_path+ f"/window_back/window_back_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
     cap.release()
     cv2.destroyAllWindows()
 
