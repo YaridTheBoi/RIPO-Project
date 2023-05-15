@@ -122,8 +122,8 @@ venv.bak/
 
 #to skopiowane repo bo wielkie jest https://github.com/tensorflow/models
 /Tensorflow/models
-/Tensorflow_old
-/Tensorflow_old2
+/Tensorflow_old/models
+/Tensorflow_old2/models
 #nagrania
 /Kampery
 

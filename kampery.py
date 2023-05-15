@@ -36,7 +36,7 @@ ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
 ckpt.restore(os.path.join(CHECKPOINT_PATH , 'ckpt-6')).expect_partial()
 
 
-
+# wykrywanie obiektu
 @tf.function
 def detect_fn(image):
     image,shapes = detection_model.preprocess(image)
@@ -53,7 +53,7 @@ window_area = [(), ()]
 door_area = [(), ()]
 stairs_area = [(), ()]
 
-
+# wybor pliku
 def selectData(mode):
     filename= input("Podaj nazwe pliku zrodlowego(z rozszerzeniem): ")
     #filename = "out_front_2.MOV"
@@ -74,7 +74,7 @@ def selectData(mode):
         elif mode == 2:
             collectData(cap)
 
-
+# analiza filmiku i detekcja
 def display(cap):
     category_index = label_map_util.create_category_index_from_labelmap(ANNOTATIONS_PATH + '/label_map.pbtxt')
     start = time.time()
@@ -141,7 +141,7 @@ def display(cap):
     startApp()
 
 
-
+# pobieranie klatek do nauki
 def collectData(cap):
     data_path = "data"
 
@@ -181,6 +181,7 @@ D - aby pobrac probke do foldreu z drzwiami
     cv2.destroyAllWindows()
     startApp()
 
+#uruchamianie aplikacji
 def startApp():
     mode = ""
     mode = input("""
