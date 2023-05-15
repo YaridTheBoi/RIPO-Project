@@ -1,0 +1,26 @@
+<annotation>
+	<folder>allimages</folder>
+	<filename>step_gluibgtwei.jpg</filename>
+	<path>/home/casper/RIPO-Project/Tensorflow/workspace/images/allimages/step_gluibgtwei.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>960</width>
+		<height>540</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>step</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>523</xmin>
+			<ymin>425</ymin>
+			<xmax>567</xmax>
+			<ymax>478</ymax>
+		</bndbox>
+	</object>
+</annotation>

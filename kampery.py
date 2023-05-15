@@ -14,6 +14,7 @@ import numpy as np
 import random
 import string
 import time
+import sys
 import os
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_utils
@@ -53,9 +54,9 @@ door_area = [(), ()]
 stairs_area = [(), ()]
 
 
-def selectData():
-    #filename= input("Podaj nazwe pliku zrodlowego(z rozszerzeniem): ")
-    filename = "out_back_1.MOV"
+def selectData(mode):
+    filename= input("Podaj nazwe pliku zrodlowego(z rozszerzeniem): ")
+    #filename = "out_front_2.MOV"
     cap = cv2.VideoCapture("Kampery/" +filename)
 
     global is_back
@@ -66,19 +67,12 @@ def selectData():
     if(not cap.isOpened()):
         print("Nie ma takiego pliku\n")
         cap.release()
-        selectData()
+        selectData(mode)
     else:
-
-
-        # area_identifer = filename[:-6]
-        # global window_area, door_area, stairs_area
-        # window_area= window_areas[area_identifer]
-        # #door_area = door_areas[area_identifer]
-        # door_area = [(468,77),(593,500)]
-        # stairs_area = stairs_areas[area_identifer]
-
-        #display(cap)
-        collectData(cap)
+        if mode == 1:
+            display(cap)
+        elif mode == 2:
+            collectData(cap)
 
 
 def display(cap):
@@ -90,18 +84,16 @@ def display(cap):
     detection_delay = (max_detection_delay + min_detection_delay)/2
     delay_delta = 0.02
     prev_best_score = 0.25
+
     while(True):
         flag, frame = cap.read()
 
         frame = cv2.resize(frame, (frame.shape[1] //2 , frame.shape[0] //2), interpolation= cv2.INTER_AREA)
         
 
-
         current_time = time.time()
 
         if current_time - start >= detection_delay:
-
-            
             input_tensor = tf.convert_to_tensor(np.expand_dims(frame, 0), dtype =tf.float32)
             detections = detect_fn(input_tensor)
 
@@ -113,7 +105,7 @@ def display(cap):
             label_id_offset =1
 
             prev_best_score= max(detections['detection_scores'])
-
+            #print(prev_best_score)
             vis_utils.visualize_boxes_and_labels_on_image_array(
                 frame,
                 detections['detection_boxes'],
@@ -122,7 +114,7 @@ def display(cap):
                 category_index,
                 use_normalized_coordinates=True,
                 max_boxes_to_draw= 3,
-                min_score_thresh=0.3,
+                min_score_thresh=0.2,
                 agnostic_mode=False
             )
 
@@ -134,12 +126,11 @@ def display(cap):
             
             start = current_time
 
-            print(detection_delay)
+            #print(detection_delay)
 
 
 
         cv2.imshow("Detections", frame)
-        #cv2.imshow("Whole Frame", frame)
         key = cv2.waitKey(1)
         if key == ord('q'):
             break
@@ -147,11 +138,18 @@ def display(cap):
 
     cap.release()
     cv2.destroyAllWindows()
+    startApp()
 
 
 
 def collectData(cap):
     data_path = "data"
+
+    print("""
+S - aby pobrac probke do folderu ze schodkiem
+W - aby pobrac probke do folderu z oknami
+D - aby pobrac probke do foldreu z drzwiami
+    """)
 
     while(True):
         flag, frame = cap.read()
@@ -181,9 +179,30 @@ def collectData(cap):
                 cv2.imwrite(data_path+ f"/window_back/window_back_{(''.join(random.choices(string.ascii_lowercase, k=10)))}.jpg".format(), frame)
     cap.release()
     cv2.destroyAllWindows()
+    startApp()
+
+def startApp():
+    mode = ""
+    mode = input("""
+Wybierz co chcesz zrobic:
+1. Wykrywaj obiekty
+2. Zbieraj dane
+3. Wyjdz
+""")
+    while (int(mode) > 3 or int(mode) < 1):
+        mode = input("""
+Nie ma takiej opcji
+1. Wykrywaj obiekty
+2. Zbieraj dane
+3. Wyjdz
+""")
+    
+    if(int(mode) == 3):
+        quit()
+
+    selectData(int(mode))
 
 
 if __name__ == "__main__":
-    selectData()
+    startApp()
 
-    #2.12

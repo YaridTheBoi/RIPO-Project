@@ -122,7 +122,8 @@ venv.bak/
 
 #to skopiowane repo bo wielkie jest https://github.com/tensorflow/models
 /Tensorflow/models
-
+/Tensorflow_old
+/Tensorflow_old2
 #nagrania
 /Kampery
 
@@ -141,3 +142,4 @@ dmypy.json
 *.avi
 *.webm
 *.mov
+*.jpg
