@@ -1,0 +1,26 @@
+<annotation>
+	<folder>window</folder>
+	<filename>window_mzhqtyselo.jpg</filename>
+	<path>/home/casper/Desktop/DanePiotr/window/window_mzhqtyselo.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>960</width>
+		<height>540</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>window_front</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>537</xmin>
+			<ymin>200</ymin>
+			<xmax>579</xmax>
+			<ymax>232</ymax>
+		</bndbox>
+	</object>
+</annotation>
