@@ -105,7 +105,7 @@ def display(cap):
             label_id_offset =1
 
             prev_best_score= max(detections['detection_scores'])
-            #print(prev_best_score)
+            print(prev_best_score)
             vis_utils.visualize_boxes_and_labels_on_image_array(
                 frame,
                 detections['detection_boxes'],
