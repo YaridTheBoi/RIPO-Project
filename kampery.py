@@ -79,66 +79,78 @@ def display(cap):
     category_index = label_map_util.create_category_index_from_labelmap(ANNOTATIONS_PATH + '/label_map.pbtxt')
     start = time.time()
     
+    start_data = time.time()
+
     max_detection_delay = 0.2
     min_detection_delay = 0.02
     detection_delay = (max_detection_delay + min_detection_delay)/2
     delay_delta = 0.02
     prev_best_score = 0.25
+    #back na 1
+    #front na 2
 
-    while(True):
-        flag, frame = cap.read()
+    with open("front_5000.txt", 'w') as file:
+        while(True):
+            flag, frame = cap.read()
 
-        frame = cv2.resize(frame, (frame.shape[1] //2 , frame.shape[0] //2), interpolation= cv2.INTER_AREA)
-        
-
-        current_time = time.time()
-
-        if current_time - start >= detection_delay:
-            input_tensor = tf.convert_to_tensor(np.expand_dims(frame, 0), dtype =tf.float32)
-            detections = detect_fn(input_tensor)
-
-            num_detections = int(detections.pop('num_detections'))
-
-            detections = {key:value[0, :num_detections].numpy() for key, value in detections.items()}
-            detections['num_detections'] = num_detections
-            detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-            label_id_offset =1
-
-            prev_best_score= max(detections['detection_scores'])
-            print(prev_best_score)
-            vis_utils.visualize_boxes_and_labels_on_image_array(
-                frame,
-                detections['detection_boxes'],
-                detections['detection_classes']+label_id_offset,
-                detections['detection_scores'],
-                category_index,
-                use_normalized_coordinates=True,
-                max_boxes_to_draw= 3,
-                min_score_thresh=0.2,
-                agnostic_mode=False
-            )
-
-            if prev_best_score > 0.27 and detection_delay - delay_delta > min_detection_delay:
-                detection_delay -= delay_delta
+            frame = cv2.resize(frame, (frame.shape[1] //2 , frame.shape[0] //2), interpolation= cv2.INTER_AREA)
             
-            if prev_best_score < 0.27 and detection_delay + delay_delta <=max_detection_delay:
-                detection_delay += delay_delta
-            
-            start = current_time
 
-            #print(detection_delay)
+            current_time = time.time()
+            current_time_data = time.time()
+
+            if current_time - start >= detection_delay:
+                input_tensor = tf.convert_to_tensor(np.expand_dims(frame, 0), dtype =tf.float32)
+                detections = detect_fn(input_tensor)
+
+                num_detections = int(detections.pop('num_detections'))
+
+                detections = {key:value[0, :num_detections].numpy() for key, value in detections.items()}
+                detections['num_detections'] = num_detections
+                detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+                label_id_offset =1
+
+                prev_best_score= max(detections['detection_scores'])
+                print(prev_best_score)
+                vis_utils.visualize_boxes_and_labels_on_image_array(
+                    frame,
+                    detections['detection_boxes'],
+                    detections['detection_classes']+label_id_offset,
+                    detections['detection_scores'],
+                    category_index,
+                    use_normalized_coordinates=True,
+                    max_boxes_to_draw= 3,
+                    min_score_thresh=0.2,
+                    agnostic_mode=False
+                )
+
+                if prev_best_score > 0.27 and detection_delay - delay_delta > min_detection_delay:
+                    detection_delay -= delay_delta
+                
+                if prev_best_score < 0.27 and detection_delay + delay_delta <=max_detection_delay:
+                    detection_delay += delay_delta
+                
+                start = current_time
+
+                #print(detection_delay)
 
 
+            if current_time_data - start_data >= 1:
+                measure = str(detections['detection_scores'][0]) + '\t' + str(detections['detection_scores'][1]) + '\t' + str(detections['detection_scores'][2]) + '\n'
+                
+                file.write(measure)
+                start_data = current_time_data
 
-        cv2.imshow("Detections", frame)
-        key = cv2.waitKey(1)
-        if key == ord('q'):
-            break
+
+            cv2.imshow("Detections", frame)
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                break
 
 
-    cap.release()
-    cv2.destroyAllWindows()
-    startApp()
+        cap.release()
+        cv2.destroyAllWindows()
+        startApp()
 
 
 # pobieranie klatek do nauki
