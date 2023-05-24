@@ -33,7 +33,7 @@ detection_model = model_builder.build(model_config=configs["model"], is_training
 
 #zaladowanie ostatniego checkpointa (najnowszy stan wiedzy modelu)
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
-ckpt.restore(os.path.join(CHECKPOINT_PATH , 'ckpt-6')).expect_partial()
+ckpt.restore(os.path.join(CHECKPOINT_PATH , 'ckpt-16')).expect_partial()
 
 
 # wykrywanie obiektu
@@ -89,7 +89,7 @@ def display(cap):
     #back na 1
     #front na 2
 
-    with open("front_5000.txt", 'w') as file:
+    with open("front_15000.txt", 'w') as file:
         while(True):
             flag, frame = cap.read()
 

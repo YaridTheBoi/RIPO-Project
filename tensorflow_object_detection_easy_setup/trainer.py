@@ -99,7 +99,7 @@ def updateModelConfig():
         proto_str = f.read()
         text_format.Merge(proto_str, pipeline_config)
 
-        pipeline_config.model.ssd.num_classes = 3           #TUTAJ ILE MASZ KLAS
+        pipeline_config.model.ssd.num_classes = 6           #TUTAJ ILE MASZ KLAS
         pipeline_config.train_config.batch_size = 4
         pipeline_config.train_config.fine_tune_checkpoint = PRETRAINED_MODEL_PATH + '/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8/checkpoint/ckpt-0'
         pipeline_config.train_config.fine_tune_checkpoint_type = 'detection'        #tutaj czy chcesz detection
