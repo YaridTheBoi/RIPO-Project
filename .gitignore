@@ -120,9 +120,15 @@ venv.bak/
 # mkdocs documentation
 /site
 
-
+#to skopiowane repo bo wielkie jest https://github.com/tensorflow/models
+/Tensorflow/models
+/Tensorflow_old/models
+/Tensorflow_old2/models
+#nagrania
 /Kampery
 
+#dane do nauki
+/data
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -136,3 +142,4 @@ dmypy.json
 *.avi
 *.webm
 *.mov
+*.jpg
